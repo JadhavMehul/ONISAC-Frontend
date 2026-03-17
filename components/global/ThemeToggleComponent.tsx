@@ -8,25 +8,19 @@ export default function ThemeToggleComponent() {
     const { theme, toggleTheme } = useTheme();
 
     return (
-        // <button
-        //     onClick={toggleTheme}
-        //     className="h-8 w-8 bg-black dark:bg-white rounded-full relative cursor-pointer flex items-center justify-center"
-        // >
-        //     {theme === "dark" ? (
-        //         <WiDaySunny
-        //             style={{ color: "#FFFFFF", fontSize: "22px" }}
-        //         />
-        //     ) : (
-        //         <IoMdMoon
-        //             style={{ color: "#FFFF01", fontSize: "22px" }}
-        //         />
-        //     )}
-        // </button>
-        <button 
+        <button
             onClick={toggleTheme}
-            className="p-2 rounded bg-gray-200 dark:bg-gray-800 text-black dark:text-white"
-            >
-            Switch to {theme === "light" ? "Dark" : "Light"} Mode
+            className="h-8 w-8 bg-black dark:border-[#EDEDED] dark:border rounded-full relative cursor-pointer flex items-center justify-center"
+        >
+            {theme === "dark" ? (
+                <WiDaySunny
+                    style={{ color: "#FFFFFF", fontSize: "22px" }}
+                />
+            ) : (
+                <IoMdMoon
+                    style={{ color: "#FFFF01", fontSize: "22px" }}
+                />
+            )}
         </button>
     );
 }
