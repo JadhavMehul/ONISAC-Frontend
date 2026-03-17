@@ -1,7 +1,6 @@
 'use client'
 import Link from "next/link";
 import "../globals.css";
-import { ThemeProvider } from "@components/providers/theme-provider";
 import { usePathname } from "next/navigation";
 import HeaderDashboard from "@components/header/HeaderDashboard";
 
@@ -20,12 +19,7 @@ export default function DashboardLayout({
       <body
         className={`antialiased`}
       >
-        <ThemeProvider
-            attribute="class"
-            defaultTheme="light"
-            enableSystem
-            disableTransitionOnChange
-          >
+       
           <div className="flex min-h-screen">
 
             {/* Sidebar */}
@@ -53,7 +47,7 @@ export default function DashboardLayout({
 
             </div>
           </div>
-        </ThemeProvider>
+
       </body>
     </html>
   );

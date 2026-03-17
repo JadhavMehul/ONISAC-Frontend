@@ -1,7 +1,6 @@
-import "../globals.css";
-import HeaderAuth from "@components/header/HeaderAuth";
-import { ThemeProvider } from "@components/providers/theme-provider";
-
+import { ThemeProvider } from '@context/ThemeContext';
+import '../globals.css';
+import HeaderAuth from '@components/header/HeaderAuth';
 
 export default function AuthLayout({
   children,
@@ -9,18 +8,11 @@ export default function AuthLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body
-        className={`antialiased`}
-      >
-        <ThemeProvider
-            attribute="class"
-            defaultTheme="light"
-            enableSystem
-            disableTransitionOnChange
-          >
-        <HeaderAuth />
-        {children}
+    <html lang='en' suppressHydrationWarning>
+      <body className={`antialiased`}>
+        <ThemeProvider>
+          <HeaderAuth />
+          {children}
         </ThemeProvider>
       </body>
     </html>

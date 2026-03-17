@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+/* This tells Tailwind to look for [data-theme="dark"] on the <html> tag */
+@variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 :root {
   --background: #ffffff;
   --foreground: #171717;
