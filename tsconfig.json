@@ -19,6 +19,13 @@
       }
     ],
     "paths": {
+      "@components/*": ["./components/*"],
+      "@assets/*": ["./public/assets/*"],
+      "@styles/*": ["./public/styles/*"],
+      "@libs/*": ["./public/dist/*"],
+      "@utils/*": ["./utils/*"],
+      "@context/*": ["./context/*"],
+      "@lib/*": ["./lib/*"],
       "@/*": ["./*"]
     }
   },
