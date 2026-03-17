@@ -1,3 +1,7 @@
+import ThemeToggleComponent from "@components/global/ThemeToggleComponent";
+import Link from "next/link";
+import { MdAccountCircle } from "react-icons/md";
+
 export default function HeaderDashboard() {
   return (
     <header className="p-2 bg-[#F8F9FA] border-b border-teal-400">
@@ -7,7 +11,12 @@ export default function HeaderDashboard() {
                 <div className="py-2 px-3 bg-blue-100 rounded-l-[8px]">1000 T</div>
                 <div className="py-2 px-3 bg-teal-400 rounded-r-[8px] text-white font-bold">Points</div>
             </div>
-            <div className="">Account</div>
+            <div className="flex flex-row justify-center items-center gap-2">
+              <ThemeToggleComponent />
+              <Link href={"/profile"}>
+                <MdAccountCircle color="#00D5BD" fontSize={39} /> 
+              </Link>
+            </div>
         </div>
     </header>
   )
