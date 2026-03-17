@@ -1,6 +1,6 @@
+import { ThemeProvider } from "@context/ThemeContext";
 import "../globals.css";
 import HeaderAuth from "@components/header/HeaderAuth";
-import { ThemeProvider } from "@components/providers/theme-provider";
 
 
 export default function AuthLayout({
@@ -13,12 +13,7 @@ export default function AuthLayout({
       <body
         className={`antialiased`}
       >
-        <ThemeProvider
-            attribute="class"
-            defaultTheme="light"
-            enableSystem
-            disableTransitionOnChange
-          >
+       <ThemeProvider>
         <HeaderAuth />
         {children}
         </ThemeProvider>

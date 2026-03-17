@@ -10,7 +10,7 @@ export default function login() {
   };
 
   return (
-    <div className="flex flex-row ">
+    <div className="flex flex-row dark:bg-black">
       
       <div className="bg-white w-[55%] flex items-center h-[100vh]">
         <div className="flex flex-col gap-9 w-full max-w-[350px] mx-auto">

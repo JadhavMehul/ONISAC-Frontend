@@ -1,5 +1,16 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: "Helvetica";
+  src: url("/assets/fonts/helvetica/Helvetica.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+
+/* This tells Tailwind to look for [data-theme="dark"] on the <html> tag */
+@variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -22,12 +33,6 @@
   }
 }
  
-@font-face {
-  font-family: "Helvetica";
-  src: url("/assets/fonts/helvetica/Helvetica.ttf") format("truetype");
-  font-weight: 400;
-  font-style: normal;
-}
 
 @theme {
   --font-helvetica: "Helvetica", sans-serif;
