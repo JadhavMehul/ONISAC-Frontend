@@ -4,7 +4,7 @@ import { MdAccountCircle } from "react-icons/md";
 
 export default function HeaderDashboard() {
   return (
-    <header className="p-2 bg-[#F8F9FA] border-b border-teal-400">
+    <header className="p-2 bg-[#F8F9FA] border-b border-teal-400 dark:bg-[#353535]">
         <div className="flex flex-row justify-between items-center">
             <h1 className="text-2xl text-black dark:text-[#ededed]">ONISAC</h1>
             <div className="flex flex-row justify-center items-center">
