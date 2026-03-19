@@ -3,25 +3,33 @@ import InputComponent from "@components/global/InputComponent";
 import SwitchComponent from "@components/global/SwitchComponent";
 import { useAuth } from "@context/AuthContext";
 import Link from "next/link";
-import { useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function login() {
-    const { login } = useAuth();
-
-  const handleSwitch = (value: boolean) => {
-    console.log("Switch value:", value);
-  };
+  const { login } = useAuth();
+  const searchParams = useSearchParams();
 
   const [data, setData] = useState({
     email: '',
     password: '',
   })
 
+  const handleSwitch = (value: boolean) => {
+    console.log("Switch value:", value);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
       await login(data.email, data.password);
       // console.log(data.email, data.password);
   }
+
+  useEffect(() => {
+    if (searchParams.get('registered') === 'true') {
+      alert('User registered successfully. Please login!');
+    }
+  }, [searchParams]);
 
   return (
     <div className="flex flex-row dark:bg-[#0a0a0a]">

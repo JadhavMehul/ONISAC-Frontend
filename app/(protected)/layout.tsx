@@ -3,8 +3,6 @@ import Link from "next/link";
 import "../globals.css";
 import { usePathname } from "next/navigation";
 import HeaderDashboard from "@components/header/HeaderDashboard";
-import { ThemeProvider } from "@context/ThemeContext";
-import { AuthProvider } from "@context/AuthContext";
 
 
 export default function DashboardLayout({
@@ -17,10 +15,7 @@ export default function DashboardLayout({
   const pathName = usePathname();
 
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body
-        className={`antialiased`}
-      >
+    <>
         {/* <ThemeProvider> */}
             <div className="flex min-h-screen">
 
@@ -50,7 +45,6 @@ export default function DashboardLayout({
               </div>
             </div>
         {/* </ThemeProvider> */}
-      </body>
-    </html>
+      </>
   );
 }

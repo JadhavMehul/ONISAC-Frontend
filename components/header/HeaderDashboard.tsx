@@ -1,8 +1,10 @@
 import ThemeToggleComponent from "@components/global/ThemeToggleComponent";
+import { useAuth } from "@context/AuthContext";
 import Link from "next/link";
 import { MdAccountCircle } from "react-icons/md";
 
 export default function HeaderDashboard() {
+  const { user, loading, logout } = useAuth();
   return (
     <header className="p-2 bg-[#F8F9FA] border-b border-teal-400 dark:bg-[#353535]">
         <div className="flex flex-row justify-between items-center">
@@ -16,6 +18,9 @@ export default function HeaderDashboard() {
               <Link href={"/profile"}>
                 <MdAccountCircle color="#00D5BD" fontSize={39} /> 
               </Link>
+              <button onClick={async (e)=>{e.preventDefault(); await logout()}}>
+                <MdAccountCircle color="#00D5BD" fontSize={39} /> 
+              </button>
             </div>
         </div>
     </header>

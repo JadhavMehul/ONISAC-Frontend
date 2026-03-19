@@ -10,15 +10,11 @@ export default function AuthLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body
-        className={`antialiased`}
-      >
+    <>
       {/* <ThemeProvider> */}
           <HeaderAuth />
           {children}
       {/* </ThemeProvider> */}
-      </body>
-    </html>
+    </>
   );
 }
