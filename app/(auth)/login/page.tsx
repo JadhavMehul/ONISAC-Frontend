@@ -7,7 +7,7 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function login() {
-  const { login } = useAuth();
+  const { login, loading } = useAuth();
   const searchParams = useSearchParams();
 
   const [data, setData] = useState({
@@ -56,7 +56,7 @@ export default function login() {
           </div>
 
           <div className="flex flex-col gap-6">
-            <button onClick={handleSubmit} className="bg-teal-400 border border-teal-400 p-3.5 rounded-2xl text-white font-helvetica font-bold text-[10px] leading-[15px] w-full hover:bg-transparent hover:border-white hover:border-white cursor-pointer">SIGN IN</button>
+            <button onClick={handleSubmit} className="bg-teal-400 border border-teal-400 p-3.5 rounded-2xl text-white font-helvetica font-bold text-[10px] leading-[15px] w-full hover:bg-transparent hover:border-white hover:border-white cursor-pointer">{loading ? 'loading...' : 'SIGN UP'}</button>
             <p className="font-helvetica leading-5 text-gray-400 text-[14px] text-center">Don't have an account? <Link href="register" className="text-teal-400 font-bold hover:text-white">Sign up</Link></p>
           </div>
         </div>

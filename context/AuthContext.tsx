@@ -12,14 +12,16 @@ import { useRouter } from 'next/navigation';
 interface AuthContextType {
   user: User | null;
   loading: boolean;
+  addPoints: (email: string, pointsToken: number) => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
 }
 interface User {
-  id: string;
+  uid: string;
   email: string;
   name: string;
+  points: number;
 }
 
 interface AuthResponse {
@@ -46,6 +48,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const initAuth = async () => {
       try {
         const res = await api.get<AuthResponse>('/auth/me'); // Hits exports.getMe
+        console.log(res);
+        
         setUser(res.data.user);
       } catch (err) {
         setUser(null);
@@ -92,10 +96,31 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     router.push('/login');
   };
 
-  
+  const addPoints = async (email: string, pointsToken: number) => {
+    try {
+      setLoading(true);
+      const res = await api.post('/user/addTokens', {
+        email,
+        pointsToken,
+      });
+
+      if (!res.data.success) {
+        alert("Error in adding points please try again later.")
+      } else {
+        setUser((prev) =>
+          prev ? { ...prev, points: res.data.points } : prev
+        );
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+    
+  }
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, loading, addPoints, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );
