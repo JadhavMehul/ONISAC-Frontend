@@ -18,7 +18,7 @@ api.interceptors.response.use(
       try {
         // Backend handles cookie rotation here
         await api.post(
-          `${API_URL}/api/auth/refresh`,
+          "/auth/refresh",
           {},
           { withCredentials: true },
         );
