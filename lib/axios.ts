@@ -17,7 +17,7 @@ api.interceptors.response.use(
       originalRequest._retry = true;
       try {
         // Backend handles cookie rotation here
-        await axios.post(
+        await api.post(
           `${API_URL}/api/auth/refresh`,
           {},
           { withCredentials: true },
