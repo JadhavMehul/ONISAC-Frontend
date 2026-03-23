@@ -68,8 +68,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     console.log(res);
     
     setUser(res.data.user);
-    // router.push('/game/dashboard');
-    window.location.href = '/game/dashboard';
+    router.push('/game/dashboard');
   };
 
   const register = async (name: string, email: string, password: string) => {

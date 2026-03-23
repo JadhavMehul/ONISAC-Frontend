@@ -3,12 +3,12 @@ import InputComponent from "@components/global/InputComponent";
 import SwitchComponent from "@components/global/SwitchComponent";
 import { useAuth } from "@context/AuthContext";
 import Link from "next/link";
-// import { useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function login() {
   const { login, loading } = useAuth();
-  // const searchParams = useSearchParams();
+  const searchParams = useSearchParams();
 
   const [data, setData] = useState({
     email: '',
@@ -25,11 +25,11 @@ export default function login() {
       // console.log(data.email, data.password);
   }
 
-  // useEffect(() => {
-  //   if (searchParams.get('registered') === 'true') {
-  //     alert('User registered successfully. Please login!');
-  //   }
-  // }, [searchParams]);
+  useEffect(() => {
+    if (searchParams.get('registered') === 'true') {
+      alert('User registered successfully. Please login!');
+    }
+  }, [searchParams]);
 
   return (
     <div className="flex flex-row dark:bg-[#0a0a0a]">
