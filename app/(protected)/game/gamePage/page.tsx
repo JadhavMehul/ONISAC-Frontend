@@ -11,6 +11,7 @@ import WWENormalCard from "@assets/gameAssets/WWE-Normal-Card.png";
 import { MdAccountCircle } from "react-icons/md";
 import FlipCard from "@components/game/FlipCard";
 import { Button } from "@components/ui/button";
+import { formatTime } from "@lib/utils";
 
 export default function Home() {
     const { user, loading } = useAuth();
@@ -24,6 +25,7 @@ export default function Home() {
     const [isMyTurn, setIsMyTurn] = useState(false);
     const [resultShow, setResultShow] = useState<any>();
     const [resultMsg, setResultMsg] = useState<string>();
+    const [timeLeft, setTimeLeft] = useState(120);
 
     const hasSentMatch = useRef(false);
     
@@ -72,12 +74,21 @@ export default function Home() {
             setIsMyTurn(turn === user.uid);
         });
 
+        socket.on("timer_update", ({ timeLeft }) => {
+            setTimeLeft(prev => (prev !== timeLeft ? timeLeft : prev));
+        });
+
         socket.on("result", (res) => {
-            setResultMsg(res.message); // "you win" or "you lose"
+            setResultMsg(res.message);
             setOtherCardData(res.other_player_card_data); 
-            setResultShow(res.selectedStat)  
-            // console.log(res.selectedStat)  
+            setResultShow(res.selectedStat);  
             setFlipState(true);
+
+            // ✅ NEW
+            if (res.reason === "opponent_left") {
+                setResultMsg("Opponent Left - You Win");
+            }
+
             socket.disconnect();
         });
 
@@ -89,6 +100,7 @@ export default function Home() {
             socket.off("other_user_name");
             socket.off("result");
             socket.off("turn");
+            socket.off("timer_update");
             socket.disconnect();
         };
     }, [user, loading]);
@@ -149,6 +161,8 @@ export default function Home() {
 
                             </div>
 
+                            <p className="absolute bottom-0 left-1/2 -translate-x-1/2 text-[10px]">{cardData.year}</p>
+
                         </div>
                         <div className="">
                             <h3 className="text-3xl text-center text-black dark:text-white">{cardData.superstar_name}</h3>
@@ -161,10 +175,21 @@ export default function Home() {
 
                 </div>
                 <div className="relative">
-                   
                     <div className="absolute top-1/2 left-1/2 -translate-1/2 w-[250px]">
+
+                        <div className="mb-12">
+                            <h1 className="text-black dark:text-white text-4xl font-helvetica text-center">Timer</h1>
+                            <p className="text-black dark:text-white text-3xl font-helvetica font-extralight text-center">
+                                {formatTime(timeLeft)}
+                            </p>
+                        </div>
+
                         {resultMsg && (
-                            resultMsg === 'you win' ? (
+                            resultMsg === 'Opponent Left - You Win' ? (
+                                <p className="text-center text-yellow-400 text-[20px]">
+                                    Opponent disconnected - You Win!
+                                </p>
+                            ) : resultMsg === 'you win' ? (
                                 <p className="text-center text-green-400 text-[20px]">You Win!</p>
                             ) : resultMsg === 'draw' ? (
                                 <p className="text-center text-yellow-400 text-[20px]">It's a Draw!</p>
