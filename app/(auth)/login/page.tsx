@@ -1,8 +1,10 @@
 import LoginContainer from '@/containers/auth/login'
-import React from 'react'
+import React, { Suspense } from 'react'
 
 export default function login() {
   return (
-    <LoginContainer />
+    <Suspense fallback={<div>Loading...</div>}>
+      <LoginContainer />
+    </Suspense>
   )
 }
