@@ -1,4 +1,4 @@
-import RegisterContainer from '@/containers/auth/register'
+import RegisterContainer from '@/containers/auth/register/register'
 import React from 'react'
 
 export default function register() {

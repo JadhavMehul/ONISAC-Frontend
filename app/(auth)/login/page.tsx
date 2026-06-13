@@ -1,4 +1,4 @@
-import LoginContainer from '@/containers/auth/login'
+import LoginContainer from '@/containers/auth/login/login'
 import React, { Suspense } from 'react'
 
 export default function login() {
