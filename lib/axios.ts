@@ -3,58 +3,68 @@ import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from 'ax
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 if (!API_URL) {
-  throw new Error('NEXT_PUBLIC_API_URL is not defined. Set it in your .env file.');
+  throw new Error('NEXT_PUBLIC_API_URL environment variable is missing.');
 }
 
 const api: AxiosInstance = axios.create({
   baseURL: `${API_URL}/api`,
   withCredentials: true,
-  timeout: 10_000,
+  timeout: 12000,
   headers: { 'Content-Type': 'application/json' },
 });
 
-// ── Response interceptor: silent token refresh on 401 ─────────────────────────
 let isRefreshing = false;
-let refreshQueue: Array<(token: null) => void> = [];
+let failedQueue: any[] = [];
 
+// This is the helper function managing your queued up network requests
 const processQueue = (error: AxiosError | null) => {
-  refreshQueue.forEach((resolve) => resolve(null));
-  refreshQueue = [];
+  failedQueue.forEach((promise) => {
+    if (error) promise.reject(error);
+    else promise.resolve(api(promise.config));
+  });
+  failedQueue = [];
 };
 
 api.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
-    const original = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
+    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
-    // Only attempt refresh once per request, skip refresh endpoint itself
-    if (
-      error.response?.status === 401 &&
-      !original._retry &&
-      !original.url?.includes('/auth/refresh')
-    ) {
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      
+      // 🛡️ BREAK INFINITE LOOP: If we get a 401 on core auth endpoints, 
+      // do not loop trying to refresh tokens. Stop immediately and show login.
+      if (
+        originalRequest.url?.includes('/auth/login') || 
+        originalRequest.url?.includes('/auth/register') ||
+        originalRequest.url?.includes('/auth/me') ||
+        originalRequest.url?.includes('/auth/refresh')
+      ) {
+        return Promise.reject(error);
+      }
+
       if (isRefreshing) {
-        // Queue subsequent 401s until refresh completes
         return new Promise((resolve, reject) => {
-          refreshQueue.push((token) => {
-            if (token === null) reject(error);
-            else resolve(api(original));
-          });
+          failedQueue.push({ resolve, reject, config: originalRequest });
         });
       }
 
-      original._retry = true;
+      originalRequest._retry = true;
       isRefreshing = true;
 
       try {
+        // Attempt to request a brand new access token via HTTP-only cookie refresh
         await axios.post(`${API_URL}/api/auth/refresh`, {}, { withCredentials: true });
+        
+        // Success! Process any original requests that were waiting
         processQueue(null);
-        return api(original);
+        return api(originalRequest);
       } catch (refreshError) {
+        // Fail! Reject everything waiting in line
         processQueue(refreshError as AxiosError);
-        // Redirect to login — avoids importing router in this module
+        
         if (typeof window !== 'undefined') {
-          window.location.href = '/login';
+          window.location.href = '/login?session_expired=true';
         }
         return Promise.reject(refreshError);
       } finally {
@@ -63,7 +73,7 @@ api.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  },
+  }
 );
 
 export default api;

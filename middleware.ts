@@ -6,21 +6,29 @@ const AUTH_ROUTES = ['/login', '/register'];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const refreshToken = request.cookies.get('refreshToken');
+  
+  // Read token flags
+  const refreshToken = request.cookies.get('refreshToken')?.value;
   const isAuthenticated = Boolean(refreshToken);
 
   const isProtected = PROTECTED_PREFIXES.some((prefix) => pathname.startsWith(prefix));
   const isAuthRoute = AUTH_ROUTES.includes(pathname);
 
-  // Unauthenticated user trying to access a protected route
+  // Case 1: Unauthenticated user trying to access game pages -> Send to login
   if (!isAuthenticated && isProtected) {
     const loginUrl = new URL('/login', request.url);
-    loginUrl.searchParams.set('next', pathname); // preserve intended destination
+    loginUrl.searchParams.set('next', pathname);
     return NextResponse.redirect(loginUrl);
   }
 
-  // Authenticated user trying to access login/register
+  // Case 2: Authenticated user trying to visit login/register -> Send back to dashboard
+  // ONLY redirect if they are actually navigating directly to /login or /register
   if (isAuthenticated && isAuthRoute) {
+    // If the browser URL contains an error or expired flag, do not redirect them away!
+    // This allows them to cleanly clear out their state and log back in.
+    if (request.nextUrl.searchParams.has('session_expired') || request.nextUrl.searchParams.has('reauth_required')) {
+      return NextResponse.next();
+    }
     return NextResponse.redirect(new URL('/game/dashboard', request.url));
   }
 
@@ -28,15 +36,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    /*
-     * Match all paths except:
-     * - _next/static  (Next.js build assets)
-     * - _next/image   (Next.js image optimisation)
-     * - favicon.ico
-     * - /assets/*     (public static files)
-     * - /api/*        (API routes — protected by their own auth middleware)
-     */
-    '/((?!_next/static|_next/image|favicon.ico|assets|api).*)',
-  ],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|assets|api).*)'],
 };
