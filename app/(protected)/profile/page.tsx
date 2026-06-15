@@ -1,7 +1,7 @@
-import React from 'react'
+import Profile from '@/containers/protected/profile/Profile'
 
 export default function page() {
   return (
-    <div>profile page</div>
+    <Profile />
   )
 }

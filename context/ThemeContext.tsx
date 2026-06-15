@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 'use client';
+=======
+'use client'
+>>>>>>> a5fbf99c19b12c81eefcebe4da1a838a4172af71
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 

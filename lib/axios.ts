@@ -1,7 +1,10 @@
 import axios, { AxiosInstance, InternalAxiosRequestConfig } from 'axios';
 
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
 const api: AxiosInstance = axios.create({
-  baseURL: 'http://localhost:5000/api',
+  baseURL: `${API_URL}/api`,
   withCredentials: true, // Crucial for HTTP-only cookies
 });
 
@@ -15,7 +18,7 @@ api.interceptors.response.use(
       try {
         // Backend handles cookie rotation here
         await axios.post(
-          'http://localhost:5000/api/auth/refresh',
+          `${API_URL}/api/auth/refresh`,
           {},
           { withCredentials: true },
         );

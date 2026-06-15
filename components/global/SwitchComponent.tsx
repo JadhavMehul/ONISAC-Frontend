@@ -1,4 +1,4 @@
-"use client";
+'use client'
 import { useState } from "react";
 
 type SwitchProps = {
@@ -26,7 +26,7 @@ export default function SwitchComponent({
   return (
     <div
       onClick={toggle}
-      className={`w-[36px] h-[18.5px] flex items-center rounded-full border transition-colors
+      className={`w-[36px] h-[18.5px] flex items-center rounded-full border transition-colors cursor-pointer
       ${enabled ? bg : dot} ${borderColor}`}
     >
       <div
