@@ -1,134 +1,132 @@
-'use client'
+'use client';
 import React, {
   createContext,
   useContext,
   useEffect,
   useState,
+  useCallback,
   ReactNode,
 } from 'react';
 import api from '@lib/axios';
 import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 
-interface AuthContextType {
-  user: User | null;
-  loading: boolean;
-  addPoints: (email: string, pointsToken: number) => Promise<void>;
-  login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string) => Promise<void>;
-  logout: () => Promise<void>;
-}
-interface User {
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+export interface User {
   uid: string;
   email: string;
   name: string;
   points: number;
 }
 
-interface AuthResponse {
-  success: boolean
+interface AuthContextType {
+  user: User | null;
+  loading: boolean;
+  login: (email: string, password: string) => Promise<void>;
+  register: (name: string, email: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;
+  addPoints: (email: string, pointsToken: number) => Promise<void>;
+  refreshUser: () => Promise<void>;
+}
+
+interface ApiUserResponse {
+  success: boolean;
   message?: string;
   user: User;
 }
 
-interface RefreshResponse {
-  success: boolean;
-}
-
-
+// ─── Context ──────────────────────────────────────────────────────────────────
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-
   const router = useRouter();
 
-  useEffect(() => {
-    const initAuth = async () => {
-      try {
-        const res = await api.get<AuthResponse>('/auth/me'); // Hits exports.getMe
-        console.log(res);
-        
-        setUser(res.data.user);
-      } catch (err) {
-        setUser(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-    initAuth();
+  // ── Bootstrap: fetch current user on mount ──
+  const refreshUser = useCallback(async () => {
+    try {
+      const res = await api.get<ApiUserResponse>('/auth/me');
+      setUser(res.data.user);
+    } catch {
+      setUser(null);
+    }
   }, []);
 
+  useEffect(() => {
+    refreshUser().finally(() => setLoading(false));
+  }, [refreshUser]);
+
+  // ── Auth actions ──────────────────────────────────────────────────────────
+
   const login = async (email: string, password: string) => {
-    const res = await api.post<AuthResponse>('/auth/login', {
-      email,
-      password,
-    }); // Hits exports.loginUser
-    console.log(res);
-    
-    setUser(res.data.user);
-    router.push('/game/dashboard');
+    setLoading(true);
+    try {
+      const res = await api.post<ApiUserResponse>('/auth/login', { email, password });
+      setUser(res.data.user);
+      router.push('/game/dashboard');
+    } catch (err: any) {
+      const msg = err?.response?.data?.message ?? 'Login failed. Please try again.';
+      toast.error(msg);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
   };
 
   const register = async (name: string, email: string, password: string) => {
+    setLoading(true);
     try {
-      setLoading(true);
-      const res = await api.post<AuthResponse>('/auth/register', {
-        name: name,
-        email,
-        password
-      }); // Hits exports.loginUser
-
-      console.log(res);
-      
+      await api.post('/auth/register', { name, email, password });
+      toast.success('Account created! Please verify your email then sign in.');
       router.push('/login?registered=true');
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      const msg = err?.response?.data?.message ?? 'Registration failed. Please try again.';
+      toast.error(msg);
+      throw err;
     } finally {
       setLoading(false);
     }
   };
 
   const logout = async () => {
-    await api.post('/auth/logout'); // Hits exports.logoutUser
-    setUser(null);
-    router.push('/login');
+    try {
+      await api.post('/auth/logout');
+    } catch {
+      // best-effort; clear local state regardless
+    } finally {
+      setUser(null);
+      router.push('/login');
+    }
   };
 
   const addPoints = async (email: string, pointsToken: number) => {
     try {
-      setLoading(true);
-      const res = await api.post('/user/addTokens', {
+      const res = await api.post<{ success: boolean; points: number }>('/user/addTokens', {
         email,
         pointsToken,
       });
-
-      if (!res.data.success) {
-        alert("Error in adding points please try again later.")
-      } else {
-        setUser((prev) =>
-          prev ? { ...prev, points: res.data.points } : prev
-        );
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
+      if (!res.data.success) throw new Error('Server returned failure');
+      setUser((prev) => (prev ? { ...prev, points: res.data.points } : prev));
+      toast.success(`${pointsToken} tokens added!`);
+    } catch (err: any) {
+      const msg = err?.response?.data?.message ?? 'Failed to add tokens.';
+      toast.error(msg);
+      throw err;
     }
-    
-  }
+  };
 
   return (
-    <AuthContext.Provider value={{ user, loading, addPoints, login, register, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, addPoints, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined)
-    throw new Error('useAuth must be used within AuthProvider');
-  return context;
+export const useAuth = (): AuthContextType => {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error('useAuth must be used within <AuthProvider>');
+  return ctx;
 };
