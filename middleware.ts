@@ -6,10 +6,23 @@ const AUTH_ROUTES = ['/login', '/register'];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const isProd = process.env.NODE_ENV === 'production';
   
   // Read token flags
   const refreshToken = request.cookies.get('refreshToken')?.value;
-  const isAuthenticated = Boolean(refreshToken);
+  
+  // 🛡️ DEV BYPASS: If we are testing locally and Chrome is blocking cookies across devices, 
+  // we can check if the request has a temporary dev override query param or fallback header.
+  let isAuthenticated = Boolean(refreshToken);
+  
+  if (!isProd && !isAuthenticated) {
+    // If we're in dev mode and cookies failed, look for a bypass flag to let you test on your phone
+    const hasDevBypass = request.nextUrl.searchParams.has('dev_login') || 
+                         request.headers.get('referer')?.includes('dashboard');
+    if (hasDevBypass) {
+      isAuthenticated = true; 
+    }
+  }
 
   const isProtected = PROTECTED_PREFIXES.some((prefix) => pathname.startsWith(prefix));
   const isAuthRoute = AUTH_ROUTES.includes(pathname);
@@ -22,10 +35,7 @@ export function middleware(request: NextRequest) {
   }
 
   // Case 2: Authenticated user trying to visit login/register -> Send back to dashboard
-  // ONLY redirect if they are actually navigating directly to /login or /register
   if (isAuthenticated && isAuthRoute) {
-    // If the browser URL contains an error or expired flag, do not redirect them away!
-    // This allows them to cleanly clear out their state and log back in.
     if (request.nextUrl.searchParams.has('session_expired') || request.nextUrl.searchParams.has('reauth_required')) {
       return NextResponse.next();
     }
